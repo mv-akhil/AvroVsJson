@@ -1,0 +1,45 @@
+👤 Sample Object
+User u = new User(1, "Alice", "alice@example.com", 30);
+
+🔵 JSON Serialization (UTF-8 text)
+
+Serialized string:
+
+{"id":1,"name":"Alice","email":"alice@example.com","age":30}
+
+UTF-8 bytes (hex representation):
+
+7B 22 69 64 22 3A 31 2C
+22 6E 61 6D 65 22 3A 22 41 6C 69 63 65 22 2C
+22 65 6D 61 69 6C 22 3A 22 61 6C 69 63 65 40 65 78 61 6D 70 6C 65 2E 63 6F 6D 22 2C
+22 61 67 65 22 3A 33 30 7D
+
+Total bytes ≈ 70–80 bytes
+Includes quotes, field names, colons, commas
+Numbers stored as ASCII characters (30 → '3' '0')
+
+
+🔵 Avro Serialization (binary, ReflectDatumWriter)
+
+Approximate byte representation (hex):
+
+02                // 1 (compact binary)
+0A 41 6C 69 63 65 // "Alice" (length + bytes)
+26 61 6C 69 63 65 40 65 78 61 6D 70 6C 65 2E 63 6F 6D // "alice@example.com" (length + bytes)
+3C                // 30 (compact binary)
+
+Total bytes ≈ 25–35 bytes
+No field names stored
+Numbers stored as compact binary(Minimal number of bytes)
+Strings stored as length + raw bytes
+
+
+| Aspect          | Avro                                                                | JSON                                             |
+| --------------- | ------------------------------------------------------------------- | ------------------------------------------------ |
+| Serialization   | Faster (binary, no field names)                                     | Slower (text conversion, escaping)               |
+| Deserialization | Slower with Reflect API (binary decoding + reflection + validation) | Sometimes faster (text parsing + inferred types) |
+| Safety          | Strong schema validation (fail-fast)                                | Flexible, less validation                        |
+| Size            | Smaller                                                             | Larger                                           |
+
+
+* Avro deserialization can be made faster instead of using refect API
